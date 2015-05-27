@@ -135,10 +135,27 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         mListView.setTranslationY(UiUtils.getScreenSize(getActivity()).getHeight());
     }
 
+    // Button for create new droid
     private void setUpFloatingButton(View root) {
         mAddButton = (FloatingActionButton) root.findViewById(R.id.fab);
         mAddButton.setTranslationY(UiUtils.getScreenSize(getActivity()).getHeight()
                 + UiUtils.dpToPx(100, mContext));
+        mAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialDialog.Builder(getActivity())
+                        .title("Type in your droid title")
+                        .inputType(InputType.TYPE_CLASS_TEXT)
+                        .input("Title", "", new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                // Do something
+                                mProgressDialog.show();
+                                IntentUtils.startDroidServiceInsert(mContext, input.toString());
+                            }
+                        }).show();
+            }
+        });
     }
 
     // Start the animation
