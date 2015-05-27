@@ -11,7 +11,6 @@ import android.course.com.sync_adapter.utils.IntentUtils;
 import android.course.com.sync_adapter.utils.NetworkUtils;
 import android.course.com.sync_adapter.utils.UiUtils;
 import android.database.Cursor;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -43,6 +42,7 @@ import com.melnykov.fab.FloatingActionButton;
 public class DroidListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_LISTVIEW = 600;
+    private static final int ANIM_DURATION_ADDBUTTON = 900;
     private boolean hasAnimation;
 
     private Toolbar mToolbar;
@@ -132,14 +132,13 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         registerForContextMenu(mListView);
 
         // Init position
-        Point size = new Point(0, 0);
-        int screenHeight = UiUtils.getScreenSize(getActivity()).getHeight();
-        mListView.setTranslationY(screenHeight);
+        mListView.setTranslationY(UiUtils.getScreenSize(getActivity()).getHeight());
     }
 
     private void setUpFloatingButton(View root) {
         mAddButton = (FloatingActionButton) root.findViewById(R.id.fab);
-        mAddButton.attachToListView(mListView);
+        mAddButton.setTranslationY(UiUtils.getScreenSize(getActivity()).getHeight()
+                + UiUtils.dpToPx(100, mContext));
     }
 
     // Start the animation
@@ -156,8 +155,14 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
                 .setDuration(ANIM_DURATION_LISTVIEW)
                 .setStartDelay(400)
                 .start();
+        mAddButton.animate()
+                .translationY(0)
+                .setDuration(ANIM_DURATION_ADDBUTTON)
+                .setStartDelay(500)
+                .start();
     }
 
+    // Update data for the list
     private void refreshDroidList(Cursor data) {
         mAdapter = new SimpleCursorAdapter(mContext, R.layout.item_droid,
                 data, mCursorFrom, mCursorTo, 0);
@@ -260,7 +265,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mProgressDialog.dismiss();
         if (data != null) {
-            Toast.makeText(mContext, getString(R.string.update), Toast.LENGTH_SHORT).show();
+            // Toast.makeText(mContext, getString(R.string.update), Toast.LENGTH_SHORT).show();
             refreshDroidList(data);
         }
     }
