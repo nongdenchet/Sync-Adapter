@@ -17,4 +17,10 @@
     <string name="no_internet">No internet connection</string>
     <string name="context_menu_delete_droid">Delete this droid</string>
     <string name="context_menu_update_droid">Update this droid</string>
+    <string name="log_out">Log out</string>
+    <string name="sign_up">Sign up</string>
+    <string name="user_name">Username</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="title_login">LOGIN TO YOUR ACCOUNT</string>
 </resources>

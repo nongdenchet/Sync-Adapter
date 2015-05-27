@@ -27,9 +27,13 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up fragment
         DroidListFragment fragment = DroidListFragment.newInstance(getApplicationContext());
+        // LoginFragment fragment = LoginFragment.newInstance();
         addFragment(fragment);
     }
 
+    /**
+     * register notification to Parse server
+     */
     private void registerPush() {
         // Register push notification
         ParsePush.subscribeInBackground("", new SaveCallback() {
@@ -44,6 +48,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * add Fragment into this activity
+     * @param fragment
+     * The fragment you want to replace for the activity
+     */
     private void addFragment(Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()

@@ -210,8 +210,12 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
                 // Check internet
                 if (!NetworkUtils.isOnline(getActivity()))
                     return true;
+
+                // Start re-query database
                 mProgressDialog.show();
                 IntentUtils.startDroidServiceQuery(mContext);
+                return true;
+            case R.id.action_logout:
                 return true;
             case android.R.id.home:
                 getActivity().onBackPressed();
