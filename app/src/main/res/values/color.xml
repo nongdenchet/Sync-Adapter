@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="primary_color">#98BE35</color>
+    <color name="primary_color_pressed">#ff80a52d</color>
+    <color name="primary_color_ripple">#ff6a8c29</color>
     <color name="actionbar_title_text">#ffffff</color>
 </resources>

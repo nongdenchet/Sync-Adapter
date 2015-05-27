@@ -10,22 +10,11 @@ import android.widget.Toast;
  * Created by nongdenchet on 5/25/15.
  */
 public class NetworkUtils {
-    public static boolean isNetworkOnline(Context context) {
-        boolean status = false;
-        try {
-            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo netInfo = cm.getNetworkInfo(0);
-            if (netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED) {
-                status = true;
-            } else {
-                netInfo = cm.getNetworkInfo(1);
-                if (netInfo != null && netInfo.getState() == NetworkInfo.State.CONNECTED)
-                    status = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public static boolean isOnline(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        boolean status = netInfo != null && netInfo.isConnectedOrConnecting();
         if (!status)
             Toast.makeText(context, context.getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
         return status;

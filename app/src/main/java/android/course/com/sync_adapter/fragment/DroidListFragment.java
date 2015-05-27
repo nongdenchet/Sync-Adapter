@@ -31,9 +31,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.melnykov.fab.FloatingActionButton;
 
 /**
  * Created by nongdenchet on 5/25/15.
@@ -43,11 +45,13 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private static final int ANIM_DURATION_LISTVIEW = 600;
     private boolean hasAnimation;
 
-    private Toolbar toolbar;
-    private ProgressDialog progressDialog;
+    private Toolbar mToolbar;
+    private ProgressDialog mProgressDialog;
     private Context mContext;
+    private FloatingActionButton mAddButton;
 
-    private ListView listView;
+    private TextView mNoDroidText;
+    private ListView mListView;
     private SimpleCursorAdapter mAdapter;
     private String[] mCursorFrom = new String[]{DroidTable.COLUMN_TITLE};
     private int[] mCursorTo = new int[]{R.id.title};
@@ -71,7 +75,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        progressDialog.show();
+        mProgressDialog.show();
         IntentUtils.startDroidServiceQuery(mContext);
     }
 
@@ -89,58 +93,65 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         setUpActionBar(root);
         setUpProgressDialog(root);
         setUpListView(root);
+        setUpFloatingButton(root);
         return root;
     }
 
     private void setUpActionBar(View root) {
-        toolbar = (Toolbar) root.findViewById(R.id.toolbar);
-        toolbar.setTitle(R.string.app_name);
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
+        mToolbar = (Toolbar) root.findViewById(R.id.toolbar);
+        mToolbar.setTitle(R.string.app_name);
+        mToolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
 
         // Init position
         int actionbarSize = (int) UiUtils.dpToPx(56, mContext);
-        toolbar.setTranslationY(-actionbarSize);
-        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        mToolbar.setTranslationY(-actionbarSize);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(mToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     private void setUpProgressDialog(View root) {
-        progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setMessage("Syncing...");
-        progressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog = new ProgressDialog(getActivity());
+        mProgressDialog.setMessage("Syncing...");
+        mProgressDialog.setCanceledOnTouchOutside(false);
     }
 
     private void setUpListView(View root) {
         // Setup list view
-        listView = (ListView) root.findViewById(R.id.list_droids);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mNoDroidText = (TextView) root.findViewById(R.id.no_droids);
+        mListView = (ListView) root.findViewById(R.id.list_droids);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Cursor cursor = (Cursor) listView.getAdapter().getItem(i);
+                Cursor cursor = (Cursor) mListView.getAdapter().getItem(i);
                 Toast.makeText(mContext, cursor.getString(cursor.getColumnIndex(DroidTable.COLUMN_TITLE)),
                         Toast.LENGTH_SHORT).show();
             }
         });
 
         // Register context menu
-        registerForContextMenu(listView);
+        registerForContextMenu(mListView);
 
         // Init position
         Point size = new Point(0, 0);
         int screenHeight = UiUtils.getScreenSize(getActivity()).getHeight();
-        listView.setTranslationY(screenHeight);
+        mListView.setTranslationY(screenHeight);
+    }
+
+    private void setUpFloatingButton(View root) {
+        mAddButton = (FloatingActionButton) root.findViewById(R.id.fab);
+        mAddButton.attachToListView(mListView);
     }
 
     // Start the animation
     private void startIntroAnimation() {
         if (hasAnimation) return;
         hasAnimation = true;
-        toolbar.animate()
+        mToolbar.animate()
                 .translationY(0)
                 .setDuration(ANIM_DURATION_TOOLBAR)
                 .setStartDelay(300)
                 .start();
-        listView.animate()
+        mListView.animate()
                 .translationY(0)
                 .setDuration(ANIM_DURATION_LISTVIEW)
                 .setStartDelay(400)
@@ -150,7 +161,15 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private void refreshDroidList(Cursor data) {
         mAdapter = new SimpleCursorAdapter(mContext, R.layout.item_droid,
                 data, mCursorFrom, mCursorTo, 0);
-        listView.setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
+
+        if (mAdapter.getCount() == 0) {
+            mListView.setVisibility(View.INVISIBLE);
+            mNoDroidText.setVisibility(View.VISIBLE);
+        } else {
+            mListView.setVisibility(View.VISIBLE);
+            mNoDroidText.setVisibility(View.INVISIBLE);
+        }
 
         // Start animation
         startIntroAnimation();
@@ -167,9 +186,9 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         switch (id) {
             case R.id.action_reset:
                 // Check internet
-                if (!NetworkUtils.isNetworkOnline(getActivity()))
+                if (!NetworkUtils.isOnline(getActivity()))
                     return true;
-                progressDialog.show();
+                mProgressDialog.show();
                 IntentUtils.startDroidServiceQuery(mContext);
                 return true;
             case android.R.id.home:
@@ -190,9 +209,11 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     public boolean onContextItemSelected(MenuItem item) {
         // Retrieve data
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Cursor cursor = (Cursor) listView.getAdapter().getItem(info.position);
+        Cursor cursor = (Cursor) mListView.getAdapter().getItem(info.position);
 
-        if (item.getTitle().equals(mContext.getString(R.string.context_menu_delete_droid))) {
+        if (!NetworkUtils.isOnline(mContext)) { // Check network state
+            return true;
+        } else if (item.getTitle().equals(mContext.getString(R.string.context_menu_delete_droid))) {
             extractDataAndStartDelete(cursor);
             return true;
         } else if (item.getTitle().equals(mContext.getString(R.string.context_menu_update_droid))) {
@@ -212,7 +233,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
                     @Override
                     public void onInput(MaterialDialog dialog, CharSequence input) {
                         // Do something
-                        progressDialog.show();
+                        mProgressDialog.show();
                         droid.setTitle(input.toString());
                         IntentUtils.startDroidServiceUpdate(mContext, droid);
                     }
@@ -223,7 +244,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private void extractDataAndStartDelete(Cursor cursor) {
         // Ask service to delete
         String id = cursor.getString(cursor.getColumnIndex(DroidTable.COLUMN_ID));
-        progressDialog.show();
+        mProgressDialog.show();
         IntentUtils.startDroidServiceDelete(mContext, id);
     }
 
@@ -237,7 +258,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        progressDialog.dismiss();
+        mProgressDialog.dismiss();
         if (data != null) {
             Toast.makeText(mContext, getString(R.string.update), Toast.LENGTH_SHORT).show();
             refreshDroidList(data);
