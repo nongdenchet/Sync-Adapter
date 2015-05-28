@@ -2,6 +2,7 @@ package android.course.com.sync_adapter.activity;
 
 import android.course.com.sync_adapter.R;
 import android.course.com.sync_adapter.fragment.DroidListFragment;
+import android.course.com.sync_adapter.fragment.LoginFragment;
 import android.course.com.sync_adapter.utils.PrefUtils;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,22 +13,36 @@ import com.parse.ParseException;
 import com.parse.ParsePush;
 import com.parse.SaveCallback;
 
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoginCallBack {
     private final String TAG = MainActivity.class.getSimpleName();
+    private PrefUtils mPrefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        PrefUtils.getInstance(getApplicationContext()).set(getString(R.string.app_running), true);
+        mPrefs = PrefUtils.getInstance(getApplicationContext());
+        mPrefs.set(getString(R.string.app_running), true);
 
         // Start polling service
         registerPush();
 
         // Set up fragment
+        if (!mPrefs.get("username", "?").equals("?")
+                && !mPrefs.get("password", "?").equals("?")) {
+            addFragmentLogin();
+        } else {
+            addFragmentList();
+        }
+    }
+
+    private void addFragmentList() {
         DroidListFragment fragment = DroidListFragment.newInstance(getApplicationContext());
-        // LoginFragment fragment = LoginFragment.newInstance();
+        addFragment(fragment);
+    }
+
+    private void addFragmentLogin() {
+        LoginFragment fragment = LoginFragment.newInstance();
         addFragment(fragment);
     }
 
@@ -61,6 +76,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
     }
@@ -74,5 +93,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         PrefUtils.getInstance(getApplicationContext()).set(getString(R.string.app_running), false);
         super.onDestroy();
+    }
+
+    @Override
+    public void login() {
+        addFragmentList();
+    }
+
+    @Override
+    public void logout() {
+        addFragmentLogin();
     }
 }

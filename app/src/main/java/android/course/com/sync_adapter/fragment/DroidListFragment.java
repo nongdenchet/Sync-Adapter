@@ -1,14 +1,17 @@
 package android.course.com.sync_adapter.fragment;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.course.com.sync_adapter.R;
+import android.course.com.sync_adapter.activity.LoginCallBack;
 import android.course.com.sync_adapter.database.DroidContentProvider;
 import android.course.com.sync_adapter.database.DroidTable;
 import android.course.com.sync_adapter.model.CursorToModel;
 import android.course.com.sync_adapter.model.Droid;
 import android.course.com.sync_adapter.utils.IntentUtils;
 import android.course.com.sync_adapter.utils.NetworkUtils;
+import android.course.com.sync_adapter.utils.PrefUtils;
 import android.course.com.sync_adapter.utils.UiUtils;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -56,6 +59,9 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private String[] mCursorFrom = new String[]{DroidTable.COLUMN_TITLE};
     private int[] mCursorTo = new int[]{R.id.title};
 
+    private LoginCallBack mCallback;
+    private PrefUtils mPrefs;
+
     public DroidListFragment() {
     }
 
@@ -68,6 +74,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPrefs = PrefUtils.getInstance(mContext);
         hasAnimation = false;
         getLoaderManager().initLoader(0, null, this);
     }
@@ -77,6 +84,12 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         super.onViewCreated(view, savedInstanceState);
         mProgressDialog.show();
         IntentUtils.startDroidServiceQuery(mContext);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mCallback = (LoginCallBack) activity;
     }
 
     @Override
@@ -91,7 +104,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         setHasOptionsMenu(true);
         View root = inflater.inflate(R.layout.fragment_droid_list, container, false);
         setUpActionBar(root);
-        setUpProgressDialog(root);
+        setUpProgressDialog();
         setUpListView(root);
         setUpFloatingButton(root);
         return root;
@@ -109,7 +122,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
-    private void setUpProgressDialog(View root) {
+    private void setUpProgressDialog() {
         mProgressDialog = new ProgressDialog(getActivity());
         mProgressDialog.setMessage("Syncing...");
         mProgressDialog.setCanceledOnTouchOutside(false);
@@ -132,18 +145,18 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         registerForContextMenu(mListView);
 
         // Init position
-        mListView.setTranslationY(UiUtils.getScreenSize(getActivity()).getHeight());
+        mListView.setTranslationY(UiUtils.getScreenSize(mContext).getHeight());
     }
 
     // Button for create new droid
     private void setUpFloatingButton(View root) {
         mAddButton = (FloatingActionButton) root.findViewById(R.id.fab);
-        mAddButton.setTranslationY(UiUtils.getScreenSize(getActivity()).getHeight()
+        mAddButton.setTranslationY(UiUtils.getScreenSize(mContext).getHeight()
                 + UiUtils.dpToPx(100, mContext));
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new MaterialDialog.Builder(getActivity())
+                new MaterialDialog.Builder(mContext)
                         .title("Type in your droid title")
                         .inputType(InputType.TYPE_CLASS_TEXT)
                         .input("Title", "", new MaterialDialog.InputCallback() {
@@ -208,7 +221,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         switch (id) {
             case R.id.action_reset:
                 // Check internet
-                if (!NetworkUtils.isOnline(getActivity()))
+                if (!NetworkUtils.isOnline(mContext))
                     return true;
 
                 // Start re-query database
@@ -216,12 +229,19 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
                 IntentUtils.startDroidServiceQuery(mContext);
                 return true;
             case R.id.action_logout:
+                logout();
                 return true;
             case android.R.id.home:
                 getActivity().onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+        mPrefs.set("username", "?");
+        mPrefs.set("password", "?");
+
     }
 
     @Override
@@ -264,6 +284,10 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
                         IntentUtils.startDroidServiceUpdate(mContext, droid);
                     }
                 }).show();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
     }
 
     // Ask for delete

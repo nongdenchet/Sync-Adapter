@@ -9,26 +9,24 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true">
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:layout_margin="16dp"
+            android:id="@+id/icon"
             android:layout_centerHorizontal="true"
-            android:padding="16dp"
-            android:text="@string/title_login"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:background="@drawable/ic_android_white_48dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <android.course.com.sync_adapter.view.CustomEditText
             android:layout_marginTop="12dp"
-            android:layout_below="@+id/title"
+            android:layout_below="@+id/icon"
             android:id="@+id/edt_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
             android:layout_marginRight="24dp"
             android:hint="@string/user_name"
-            android:inputType="text"
+            android:inputType="textNoSuggestions"
             android:textColorHint="#90ffffff"
             android:textColor="@android:color/white">
             <requestFocus />
@@ -47,11 +45,25 @@
             android:textColorHint="#90ffffff"
             android:textColor="@android:color/white" />
 
-        <TextView
-            android:id="@+id/login_signup_button"
+        <android.course.com.sync_adapter.view.CustomEditText
+            android:id="@+id/edt_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/edt_password"
+            android:layout_below="@id/edt_password"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:layout_marginTop="12dp"
+            android:hint="@string/email"
+            android:inputType="textNoSuggestions"
+            android:textColorHint="#90ffffff"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:layout_marginBottom="48dp"
+            android:id="@+id/submit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/edt_email"
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="24dp"
             android:layout_marginRight="24dp"
@@ -66,7 +78,7 @@
     </RelativeLayout>
 
     <TextView
-        android:id="@+id/signup_login"
+        android:id="@+id/helper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

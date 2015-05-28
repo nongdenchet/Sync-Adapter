@@ -17,10 +17,16 @@
     <string name="no_internet">No internet connection</string>
     <string name="context_menu_delete_droid">Delete this droid</string>
     <string name="context_menu_update_droid">Update this droid</string>
-    <string name="log_out">Log out</string>
+    <string name="logout">Logout</string>
     <string name="sign_up">Sign up</string>
     <string name="user_name">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-    <string name="title_login">LOGIN TO YOUR ACCOUNT</string>
+    <string name="check_string">The length of username and password is less than 8 or email is invalid</string>
+    <string name="loading">Loading...</string>
+    <string name="email">Email</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="success_account">Your account has been created successfully</string>
+    <string name="fail_account">Error occurs, maybe your email has been used</string>
+    <string name="fail_login">Username or Password is wrong</string>
 </resources>
