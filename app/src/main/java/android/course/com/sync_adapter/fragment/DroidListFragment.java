@@ -11,7 +11,6 @@ import android.course.com.sync_adapter.model.CursorToModel;
 import android.course.com.sync_adapter.model.Droid;
 import android.course.com.sync_adapter.utils.IntentUtils;
 import android.course.com.sync_adapter.utils.NetworkUtils;
-import android.course.com.sync_adapter.utils.PrefUtils;
 import android.course.com.sync_adapter.utils.UiUtils;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -58,9 +57,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private SimpleCursorAdapter mAdapter;
     private String[] mCursorFrom = new String[]{DroidTable.COLUMN_TITLE};
     private int[] mCursorTo = new int[]{R.id.title};
-
     private LoginCallBack mCallback;
-    private PrefUtils mPrefs;
 
     public DroidListFragment() {
     }
@@ -74,7 +71,6 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPrefs = PrefUtils.getInstance(mContext);
         hasAnimation = false;
         getLoaderManager().initLoader(0, null, this);
     }
@@ -229,19 +225,18 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
                 IntentUtils.startDroidServiceQuery(mContext);
                 return true;
             case R.id.action_logout:
-                logout();
+                // Check internet
+                if (!NetworkUtils.isOnline(mContext))
+                    return true;
+
+                // Start logout
+                mCallback.logout();
                 return true;
             case android.R.id.home:
                 getActivity().onBackPressed();
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void logout() {
-        mPrefs.set("username", "?");
-        mPrefs.set("password", "?");
-
     }
 
     @Override

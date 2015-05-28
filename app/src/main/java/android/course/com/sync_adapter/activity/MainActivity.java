@@ -28,8 +28,8 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
         registerPush();
 
         // Set up fragment
-        if (!mPrefs.get("username", "?").equals("?")
-                && !mPrefs.get("password", "?").equals("?")) {
+        if (mPrefs.get("username", "?").equals("?")
+                || mPrefs.get("password", "?").equals("?")) {
             addFragmentLogin();
         } else {
             addFragmentList();
@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
 
     @Override
     public void logout() {
+        mPrefs.set("username", "?");
+        mPrefs.set("password", "?");
         addFragmentLogin();
     }
 }

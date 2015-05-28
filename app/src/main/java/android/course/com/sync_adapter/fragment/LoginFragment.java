@@ -148,7 +148,7 @@ public class LoginFragment extends Fragment {
                         mCallBack.login();
                     } else {
                         // Fail
-                        showDialog(e.getMessage());
+                        showDialog(getString(R.string.fail_login));
                     }
                 }
             });
