@@ -22,7 +22,7 @@
     <string name="user_name">Username</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
-    <string name="check_string">The length of username and password is less than 8 or email is invalid</string>
+    <string name="check_string">The length of username and password must be larger than 8</string>
     <string name="loading">Loading...</string>
     <string name="email">Email</string>
     <string name="invalid_email">Invalid email</string>

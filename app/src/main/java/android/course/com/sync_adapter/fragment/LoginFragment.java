@@ -75,6 +75,8 @@ public class LoginFragment extends Fragment {
     private void disableEmail() {
         mEmailEdt.setAlpha(0.4f);
         mEmailEdt.setEnabled(false);
+        mEmailEdt.setFocusable(false);
+        mEmailEdt.setFocusableInTouchMode(false);
     }
 
     /**
@@ -83,6 +85,8 @@ public class LoginFragment extends Fragment {
     private void enableEmail() {
         mEmailEdt.setAlpha(1);
         mEmailEdt.setEnabled(true);
+        mEmailEdt.setFocusable(true);
+        mEmailEdt.setFocusableInTouchMode(true);
     }
 
     private void setUpView(View root) {
@@ -126,14 +130,6 @@ public class LoginFragment extends Fragment {
         if (!NetworkUtils.isOnline(getActivity()))
             return;
 
-        // Check valid
-        if (!AccountUtils.checkValidNameOrPassword(username)
-                || !AccountUtils.checkValidNameOrPassword(password)) {
-            Toast.makeText(getActivity(), getString(R.string.check_string),
-                    Toast.LENGTH_LONG).show();
-            return;
-        }
-
         if (login) {
             // Start loging-in
             mProgressDialog.show();
@@ -153,6 +149,14 @@ public class LoginFragment extends Fragment {
                 }
             });
         } else {
+            // Check valid
+            if (!AccountUtils.checkValidNameOrPassword(username)
+                    || !AccountUtils.checkValidNameOrPassword(password)) {
+                Toast.makeText(getActivity(), getString(R.string.check_string),
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+
             // Check email
             if (!AccountUtils.isEmailValid(email)) {
                 Toast.makeText(getActivity(), getString(R.string.invalid_email),
