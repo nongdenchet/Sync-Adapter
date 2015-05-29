@@ -5,12 +5,13 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.course.com.sync_adapter.R;
 import android.course.com.sync_adapter.activity.LoginCallBack;
+import android.course.com.sync_adapter.database.DataAccessObject;
 import android.course.com.sync_adapter.database.DroidContentProvider;
 import android.course.com.sync_adapter.database.DroidTable;
-import android.course.com.sync_adapter.model.CursorToModel;
 import android.course.com.sync_adapter.model.Droid;
-import android.course.com.sync_adapter.utils.IntentUtils;
 import android.course.com.sync_adapter.utils.NetworkUtils;
+import android.course.com.sync_adapter.utils.ParseUtils;
+import android.course.com.sync_adapter.utils.SyncUtils;
 import android.course.com.sync_adapter.utils.UiUtils;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -45,19 +46,20 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_LISTVIEW = 600;
     private static final int ANIM_DURATION_ADDBUTTON = 900;
-    private boolean hasAnimation;
+    private boolean hasAnimation = false;
 
     private Toolbar mToolbar;
     private ProgressDialog mProgressDialog;
     private Context mContext;
     private FloatingActionButton mAddButton;
-
     private TextView mNoDroidText;
     private ListView mListView;
+
     private SimpleCursorAdapter mAdapter;
     private String[] mCursorFrom = new String[]{DroidTable.COLUMN_TITLE};
     private int[] mCursorTo = new int[]{R.id.title};
     private LoginCallBack mCallback;
+    private DataAccessObject dataAccessObject;
 
     public DroidListFragment() {
     }
@@ -71,27 +73,24 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        hasAnimation = false;
+        dataAccessObject = new DataAccessObject(mContext);
         getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mProgressDialog.show();
-        IntentUtils.startDroidServiceQuery(mContext);
+        SyncUtils.triggerRefresh(mContext);
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mCallback = (LoginCallBack) activity;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        IntentUtils.stopDroidService(mContext);
     }
 
     @Nullable
@@ -144,29 +143,6 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         mListView.setTranslationY(UiUtils.getScreenSize(mContext).getHeight());
     }
 
-    // Button for create new droid
-    private void setUpFloatingButton(View root) {
-        mAddButton = (FloatingActionButton) root.findViewById(R.id.fab);
-        mAddButton.setTranslationY(UiUtils.getScreenSize(mContext).getHeight()
-                + UiUtils.dpToPx(100, mContext));
-        mAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new MaterialDialog.Builder(mContext)
-                        .title("Type in your droid title")
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input("Title", "", new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                // Do something
-                                mProgressDialog.show();
-                                IntentUtils.startDroidServiceInsert(mContext, input.toString());
-                            }
-                        }).show();
-            }
-        });
-    }
-
     // Start the animation
     private void startIntroAnimation() {
         if (hasAnimation) return;
@@ -217,20 +193,13 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
         switch (id) {
             case R.id.action_reset:
                 // Check internet
-                if (!NetworkUtils.isOnline(mContext))
-                    return true;
-
-                // Start re-query database
-                mProgressDialog.show();
-                IntentUtils.startDroidServiceQuery(mContext);
+                if (NetworkUtils.isOnline(mContext))
+                    SyncUtils.triggerRefresh(mContext);
                 return true;
             case R.id.action_logout:
                 // Check internet
-                if (!NetworkUtils.isOnline(mContext))
-                    return true;
-
-                // Start logout
-                mCallback.logout();
+                if (NetworkUtils.isOnline(mContext))
+                    mCallback.logout();
                 return true;
             case android.R.id.home:
                 getActivity().onBackPressed();
@@ -266,31 +235,76 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
 
     // Ask for update
     private void extractDataAndStartUpdate(Cursor cursor) {
-        final Droid droid = CursorToModel.cursorToDroid(cursor);
+        final Droid droid = ParseUtils.cursorToDroid(cursor);
         new MaterialDialog.Builder(getActivity())
                 .title("Type in your new title")
-                .inputType(InputType.TYPE_CLASS_TEXT)
+                .inputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
                 .input("Title", droid.getTitle(), new MaterialDialog.InputCallback() {
                     @Override
                     public void onInput(MaterialDialog dialog, CharSequence input) {
                         // Do something
-                        mProgressDialog.show();
                         droid.setTitle(input.toString());
-                        IntentUtils.startDroidServiceUpdate(mContext, droid);
+                        dataAccessObject.updateData(droid, new DataAccessObject.IDatabaseCallBack() {
+                            @Override
+                            public void onComplete() {
+                                mProgressDialog.dismiss();
+                            }
+
+                            @Override
+                            public void onStart() {
+                                mProgressDialog.show();
+                            }
+                        });
                     }
                 }).show();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-    }
-
     // Ask for delete
     private void extractDataAndStartDelete(Cursor cursor) {
-        // Ask service to delete
         String id = cursor.getString(cursor.getColumnIndex(DroidTable.COLUMN_ID));
-        mProgressDialog.show();
-        IntentUtils.startDroidServiceDelete(mContext, id);
+        dataAccessObject.deleteData(id, new DataAccessObject.IDatabaseCallBack() {
+            @Override
+            public void onComplete() {
+                mProgressDialog.dismiss();
+            }
+
+            @Override
+            public void onStart() {
+                mProgressDialog.show();
+            }
+        });
+    }
+
+    // Button for create new droid
+    private void setUpFloatingButton(View root) {
+        mAddButton = (FloatingActionButton) root.findViewById(R.id.fab);
+        mAddButton.setTranslationY(UiUtils.getScreenSize(mContext).getHeight()
+                + UiUtils.dpToPx(100, mContext));
+        mAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialDialog.Builder(getActivity())
+                        .title("Type in your droid title")
+                        .inputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
+                        .input("Title", "", new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                // Request add
+                                dataAccessObject.insertData(input.toString(), new DataAccessObject.IDatabaseCallBack() {
+                                    @Override
+                                    public void onComplete() {
+                                        mProgressDialog.dismiss();
+                                    }
+
+                                    @Override
+                                    public void onStart() {
+                                        mProgressDialog.show();
+                                    }
+                                });
+                            }
+                        }).show();
+            }
+        });
     }
 
     @Override
@@ -303,9 +317,8 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mProgressDialog.dismiss();
         if (data != null) {
-            // Toast.makeText(mContext, getString(R.string.update), Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, getString(R.string.update), Toast.LENGTH_SHORT).show();
             refreshDroidList(data);
         }
     }

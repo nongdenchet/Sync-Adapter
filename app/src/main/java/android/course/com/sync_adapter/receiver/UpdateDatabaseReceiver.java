@@ -4,8 +4,8 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.course.com.sync_adapter.R;
-import android.course.com.sync_adapter.utils.IntentUtils;
 import android.course.com.sync_adapter.utils.PrefUtils;
+import android.course.com.sync_adapter.utils.SyncUtils;
 import android.util.Log;
 
 import com.parse.ParsePushBroadcastReceiver;
@@ -25,8 +25,9 @@ public class UpdateDatabaseReceiver extends ParsePushBroadcastReceiver {
     @Override
     protected void onPushReceive(Context context, Intent intent) {
         Log.d(TAG, "Receive");
-        if (PrefUtils.getInstance(context).get(context.getString(R.string.app_running), false))
-            IntentUtils.startDroidServiceQuery(context);
+        if (PrefUtils.getInstance(context).get(context.getString(R.string.app_running), false)) {
+            SyncUtils.triggerRefresh(context);
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import android.course.com.sync_adapter.R;
 import android.course.com.sync_adapter.fragment.DroidListFragment;
 import android.course.com.sync_adapter.fragment.LoginFragment;
 import android.course.com.sync_adapter.utils.PrefUtils;
+import android.course.com.sync_adapter.utils.SyncUtils;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +22,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         mPrefs = PrefUtils.getInstance(getApplicationContext());
         mPrefs.set(getString(R.string.app_running), true);
 
@@ -28,8 +30,8 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
         registerPush();
 
         // Set up fragment
-        if (mPrefs.get("username", "?").equals("?")
-                || mPrefs.get("password", "?").equals("?")) {
+        if (mPrefs.get("username", "sync").equals("sync")
+                || mPrefs.get("password", "sync").equals("sync")) {
             addFragmentLogin();
         } else {
             addFragmentList();
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
     }
 
     private void addFragmentList() {
+        SyncUtils.CreateSyncAccount(this);
         DroidListFragment fragment = DroidListFragment.newInstance(getApplicationContext());
         addFragment(fragment);
     }
@@ -102,8 +105,8 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
 
     @Override
     public void logout() {
-        mPrefs.set("username", "?");
-        mPrefs.set("password", "?");
+        mPrefs.set("username", "sync");
+        mPrefs.set("password", "sync");
         addFragmentLogin();
     }
 }
