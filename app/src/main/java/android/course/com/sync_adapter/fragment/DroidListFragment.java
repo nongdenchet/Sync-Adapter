@@ -237,6 +237,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private void extractDataAndStartUpdate(Cursor cursor) {
         final Droid droid = ParseUtils.cursorToDroid(cursor);
         new MaterialDialog.Builder(getActivity())
+                .negativeText("Cancel")
                 .title("Type in your new title")
                 .inputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
                 .input("Title", droid.getTitle(), new MaterialDialog.InputCallback() {
@@ -284,6 +285,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void onClick(View view) {
                 new MaterialDialog.Builder(getActivity())
+                        .negativeText("Cancel")
                         .title("Type in your droid title")
                         .inputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
                         .input("Title", "", new MaterialDialog.InputCallback() {

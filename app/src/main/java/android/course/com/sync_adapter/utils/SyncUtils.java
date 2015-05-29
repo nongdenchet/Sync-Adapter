@@ -47,8 +47,7 @@ public class SyncUtils {
         // the account list, so wee need to check both.)
         if (newAccount || !setupComplete) {
             triggerRefresh(context);
-            PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putBoolean(PREF_SETUP_COMPLETE, true).commit();
+            PrefUtils.getInstance(context).set(PREF_SETUP_COMPLETE, true);
         }
     }
 
