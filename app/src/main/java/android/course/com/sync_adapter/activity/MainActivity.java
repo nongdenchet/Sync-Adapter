@@ -22,11 +22,8 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mPrefs = PrefUtils.getInstance(getApplicationContext());
         mPrefs.set(getString(R.string.app_running), true);
-
-        // Start polling service
         registerPush();
 
         // Set up fragment

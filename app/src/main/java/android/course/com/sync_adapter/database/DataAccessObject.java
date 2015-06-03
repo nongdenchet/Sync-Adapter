@@ -21,6 +21,7 @@ import java.util.List;
  * Created by nongdenchet on 5/29/15.
  */
 public class DataAccessObject {
+    // Interface call back from background thread
     public interface IDatabaseCallBack {
         void onComplete();
         void onStart();

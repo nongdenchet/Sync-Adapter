@@ -30,8 +30,7 @@ public class AccountService extends Service {
     }
 
     @Override
-    public void onDestroy() {
-    }
+    public void onDestroy() {}
 
     @Override
     public IBinder onBind(Intent intent) {
