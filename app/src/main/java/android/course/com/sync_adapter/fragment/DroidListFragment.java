@@ -199,7 +199,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
             case R.id.action_logout:
                 // Check internet
                 if (NetworkUtils.isOnline(mContext))
-                    mCallback.logout();
+                    mCallback.onLogout();
                 return true;
             case android.R.id.home:
                 getActivity().onBackPressed();

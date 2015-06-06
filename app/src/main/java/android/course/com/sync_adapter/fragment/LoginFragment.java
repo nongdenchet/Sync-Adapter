@@ -138,10 +138,7 @@ public class LoginFragment extends Fragment {
                 public void done(ParseUser user, ParseException e) {
                     mProgressDialog.dismiss();
                     if (e == null) {
-                        // SuccessPrefUtils prefUtils = PrefUtils.getInstance(getActivity());
-                        mPrefs.set("username", username);
-                        mPrefs.set("password", password);
-                        mCallBack.login();
+                        finishLogin(username, password);
                     } else {
                         // Fail
                         showDialog(getString(R.string.fail_login));
@@ -178,6 +175,7 @@ public class LoginFragment extends Fragment {
                     mProgressDialog.dismiss();
                     if (e == null) {
                         // Success
+                        finishLogin(username, password);
                         showDialog(getString(R.string.success_account));
                     } else {
                         // Fail
@@ -186,6 +184,13 @@ public class LoginFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void finishLogin(String username, String password) {
+        mPrefs.set("username", username);
+        mPrefs.set("password", password);
+        mPrefs.set("login", true);
+        mCallBack.onLogin();
     }
 
     private void showDialog(String title) {

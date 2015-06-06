@@ -9,9 +9,12 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParsePush;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 public class MainActivity extends AppCompatActivity implements LoginCallBack {
@@ -23,20 +26,18 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mPrefs = PrefUtils.getInstance(getApplicationContext());
-        mPrefs.set(getString(R.string.app_running), true);
-        registerPush();
 
         // Set up fragment
-        if (mPrefs.get("username", "sync").equals("sync")
-                || mPrefs.get("password", "sync").equals("sync")) {
-            addFragmentLogin();
-        } else {
+        if (mPrefs.get("login", false)) {
             addFragmentList();
+        } else {
+            addFragmentLogin();
         }
     }
 
     private void addFragmentList() {
         SyncUtils.CreateSyncAccount(this);
+        registerPush();
         DroidListFragment fragment = DroidListFragment.newInstance(getApplicationContext());
         addFragment(fragment);
     }
@@ -96,14 +97,24 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
     }
 
     @Override
-    public void login() {
+    public void onLogin() {
         addFragmentList();
     }
 
     @Override
-    public void logout() {
-        mPrefs.set("username", "sync");
-        mPrefs.set("password", "sync");
-        addFragmentLogin();
+    public void onLogout() {
+        ParseUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    mPrefs.set("username", "");
+                    mPrefs.set("password", "");
+                    mPrefs.set("login", false);
+                    addFragmentLogin();
+                } else {
+                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
