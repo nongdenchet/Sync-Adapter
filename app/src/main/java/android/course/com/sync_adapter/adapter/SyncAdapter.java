@@ -33,7 +33,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         mContentResolver = mContext.getContentResolver();
     }
 
-    public void syncData() {
+    @Override
+    public void onPerformSync(Account account, Bundle bundle, String s,
+                              ContentProviderClient contentProviderClient, SyncResult syncResult) {
         // Query parse database
         ParseQuery<ParseObject> query = ParseQuery.getQuery(mContext.getString(R.string.droid));
 
@@ -53,12 +55,5 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
         });
-    }
-
-    @Override
-    public void onPerformSync(Account account, Bundle bundle, String s,
-                              ContentProviderClient contentProviderClient, SyncResult syncResult) {
-            // Perform syncing data from the server
-            syncData();
     }
 }

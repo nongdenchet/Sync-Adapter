@@ -16,7 +16,7 @@ import android.os.IBinder;
  */
 public class AccountService extends Service {
     public static final String ACCOUNT_TYPE = "android.course.com.sync_adapter";
-    public static final String ACCOUNT_NAME = "sync";
+    public static final String ACCOUNT_NAME = "nongdenchet"; // Default
     private Authenticator mAuthenticator;
 
     public static Account getAccount(Context context) {
