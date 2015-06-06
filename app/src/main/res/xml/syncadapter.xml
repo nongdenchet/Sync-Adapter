@@ -4,6 +4,6 @@
     android:accountType="android.course.com.sync_adapter"
     android:allowParallelSyncs="false"
     android:contentAuthority="android.course.com.sync_adapter.database.contentprovider"
-    android:isAlwaysSyncable="false"
+    android:isAlwaysSyncable="true"
     android:supportsUploading="true"
     android:userVisible="true" />
