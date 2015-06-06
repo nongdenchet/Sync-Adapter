@@ -8,10 +8,10 @@ import android.os.IBinder;
 /**
  * Created by nongdenchet on 5/25/15.
  */
-public class DroidService extends Service {
+public class SyncService extends Service {
     private static final Object mSyncAdapterLock = new Object();
     private SyncAdapter mSyncAdapter;
-    private static final String TAG = DroidService.class.getSimpleName();
+    private static final String TAG = SyncService.class.getSimpleName();
 
     @Override
     public void onCreate() {

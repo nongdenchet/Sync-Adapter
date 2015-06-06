@@ -42,7 +42,7 @@ import com.melnykov.fab.FloatingActionButton;
 /**
  * Created by nongdenchet on 5/25/15.
  */
-public class DroidListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class ListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int ANIM_DURATION_TOOLBAR = 300;
     private static final int ANIM_DURATION_LISTVIEW = 600;
     private static final int ANIM_DURATION_ADDBUTTON = 900;
@@ -61,11 +61,11 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
     private LoginCallBack mCallback;
     private DataAccessObject dataAccessObject;
 
-    public DroidListFragment() {
+    public ListFragment() {
     }
 
-    public static DroidListFragment newInstance(Context context) {
-        DroidListFragment fragment = new DroidListFragment();
+    public static ListFragment newInstance(Context context) {
+        ListFragment fragment = new ListFragment();
         fragment.mContext = context;
         return fragment;
     }
@@ -319,10 +319,7 @@ public class DroidListFragment extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data != null) {
-            Toast.makeText(mContext, getString(R.string.update), Toast.LENGTH_SHORT).show();
-            refreshDroidList(data);
-        }
+        refreshDroidList(data);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package android.course.com.sync_adapter.activity;
 
 import android.course.com.sync_adapter.R;
-import android.course.com.sync_adapter.fragment.DroidListFragment;
+import android.course.com.sync_adapter.fragment.ListFragment;
 import android.course.com.sync_adapter.fragment.LoginFragment;
 import android.course.com.sync_adapter.utils.PrefUtils;
 import android.course.com.sync_adapter.utils.SyncUtils;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
     private void addFragmentList() {
         SyncUtils.CreateSyncAccount(this);
         registerPush();
-        DroidListFragment fragment = DroidListFragment.newInstance(getApplicationContext());
+        ListFragment fragment = ListFragment.newInstance(getApplicationContext());
         addFragment(fragment);
     }
 

@@ -47,6 +47,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     mContentResolver
                             .bulkInsert(DroidContentProvider.CONTENT_URI,
                                     ParseUtils.fromParseObjectToValues(droids));
+                    Toast.makeText(mContext, mContext.getString(R.string.update), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(mContext, "Problem occurs", Toast.LENGTH_SHORT).show();
                 }

@@ -12,15 +12,9 @@ import android.os.Bundle;
  * Created by nongdenchet on 5/29/15.
  */
 public class SyncUtils {
-    private static final String CONTENT_AUTHORITY = DroidContentProvider.AUTHORITY;
 
-    /**
-     * Create an entry for this application in the system account list, if it isn't already there.
-     *
-     * @param context Context
-     */
     public static void CreateSyncAccount(Context context) {
-        boolean newAccount = false;
+        boolean newAccount;
         boolean setupComplete = PrefUtils.getInstance(context)
                 .get("setup_complete", false);
         String password = PrefUtils.getInstance(context)
@@ -30,12 +24,8 @@ public class SyncUtils {
         Account account = AccountService.getAccount(context);
         AccountManager accountManager = (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
 
-        // Create the account
-        if (accountManager.addAccountExplicitly(account, password, null)) {
-            // Inform the system that this account supports sync
-            ContentResolver.setIsSyncable(account, CONTENT_AUTHORITY, 1);
-            newAccount = true;
-        }
+        // Create the account if the account already existed newAccount return false
+        newAccount = accountManager.addAccountExplicitly(account, password, null);
 
         // Schedule an initial sync
         if (newAccount || !setupComplete) {
@@ -52,7 +42,6 @@ public class SyncUtils {
 
         // Disable sync backoff and ignore sync preferences. In other words...perform sync now
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(
                 AccountService.getAccount(context),
                 DroidContentProvider.AUTHORITY,

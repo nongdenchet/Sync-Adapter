@@ -41,7 +41,7 @@
         </activity>
 
         <service
-            android:name=".service.DroidService"
+            android:name=".service.SyncService"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
