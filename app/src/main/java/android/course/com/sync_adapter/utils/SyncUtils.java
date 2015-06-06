@@ -26,7 +26,6 @@ public class SyncUtils {
 
         // Create the account if the account already existed newAccount return false
         newAccount = accountManager.addAccountExplicitly(account, password, null);
-        ContentResolver.addPeriodicSync(account, DroidContentProvider.AUTHORITY, new Bundle(), 3600);
 
         // Schedule an initial sync
         if (newAccount || !setupComplete) {
