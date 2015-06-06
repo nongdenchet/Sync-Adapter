@@ -92,7 +92,6 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
 
     @Override
     protected void onDestroy() {
-        PrefUtils.getInstance(getApplicationContext()).set(getString(R.string.app_running), false);
         super.onDestroy();
     }
 
