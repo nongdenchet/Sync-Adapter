@@ -73,32 +73,6 @@ public class DroidContentProvider extends ContentProvider {
 	}
 
 	@Override
-	public String getType(Uri uri) {
-		return null;
-	}
-
-	@Override
-	public Uri insert(Uri uri, ContentValues values) {
-		long id;
-		int uriType = sURIMatcher.match(uri);
-		SQLiteDatabase sqlDB = dbHelper.getWritableDatabase();
-
-
-		switch (uriType) {
-		case DROIDS:
-			id = sqlDB.insertWithOnConflict(DroidTable.TABLE_DROID, DroidTable.COLUMN_ID,
-					values, SQLiteDatabase.CONFLICT_REPLACE);
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown URI: " + uri);
-		}
-
-		// Notify listeners that implement LoaderCallback
-		getContext().getContentResolver().notifyChange(uri, null);
-		return Uri.parse(BASE_PATH + "/" + id);
-	}
-
-	@Override
 	public int bulkInsert(Uri uri, @NonNull ContentValues[] values) {
 		int numInserted = 0;
 		int uriType = sURIMatcher.match(uri);
@@ -122,6 +96,32 @@ public class DroidContentProvider extends ContentProvider {
 		}
 		return numInserted;
 	}
+
+    @Override
+    public String getType(Uri uri) {
+        return null;
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        long id;
+        int uriType = sURIMatcher.match(uri);
+        SQLiteDatabase sqlDB = dbHelper.getWritableDatabase();
+
+
+        switch (uriType) {
+            case DROIDS:
+                id = sqlDB.insertWithOnConflict(DroidTable.TABLE_DROID, DroidTable.COLUMN_ID,
+                        values, SQLiteDatabase.CONFLICT_REPLACE);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+        }
+
+        // Notify listeners that implement LoaderCallback
+        getContext().getContentResolver().notifyChange(uri, null);
+        return Uri.parse(BASE_PATH + "/" + id);
+    }
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
