@@ -61,9 +61,6 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     private LoginCallBack mCallback;
     private DataAccessObject dataAccessObject;
 
-    public ListFragment() {
-    }
-
     public static ListFragment newInstance(Context context) {
         ListFragment fragment = new ListFragment();
         fragment.mContext = context;
@@ -75,6 +72,24 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
         super.onCreate(savedInstanceState);
         dataAccessObject = new DataAccessObject(mContext);
         getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection = {DroidTable.COLUMN_ID,
+                DroidTable.COLUMN_TITLE};
+        return new CursorLoader(mContext, DroidContentProvider.CONTENT_URI,
+                projection, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        refreshDroidList(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        refreshDroidList(null);
     }
 
     @Override
@@ -307,23 +322,5 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
                         }).show();
             }
         });
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        String[] projection = {DroidTable.COLUMN_ID,
-                DroidTable.COLUMN_TITLE};
-        return new CursorLoader(mContext, DroidContentProvider.CONTENT_URI,
-                projection, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        refreshDroidList(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        refreshDroidList(null);
     }
 }
