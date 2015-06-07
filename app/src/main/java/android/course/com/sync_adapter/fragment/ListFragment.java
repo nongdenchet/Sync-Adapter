@@ -99,7 +99,18 @@ public class ListFragment extends Fragment implements LoaderManager.LoaderCallba
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         SyncUtils.triggerRefresh(mContext);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        SyncUtils.cancelSync(mContext);
     }
 
     @Override

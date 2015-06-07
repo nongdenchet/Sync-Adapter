@@ -47,4 +47,8 @@ public class SyncUtils {
                 DroidContentProvider.AUTHORITY,
                 bundle);
     }
+
+    public static void cancelSync(Context context) {
+        ContentResolver.cancelSync(AccountService.getAccount(context), DroidContentProvider.AUTHORITY);
+    }
 }
