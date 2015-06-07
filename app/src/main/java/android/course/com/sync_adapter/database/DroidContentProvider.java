@@ -62,6 +62,7 @@ public class DroidContentProvider extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
 
+		// Start querying database
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
 		Cursor cursor = queryBuilder.query(db, projection, selection,
 				selectionArgs, null, null, sortOrder);
