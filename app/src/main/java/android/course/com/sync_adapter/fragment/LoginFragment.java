@@ -54,6 +54,14 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mPrefs.set("username", "");
+        mPrefs.set("password", "");
+        mPrefs.set("login", false);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         mCallBack = (LoginCallBack) activity;

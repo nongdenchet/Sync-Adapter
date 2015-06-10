@@ -106,9 +106,6 @@ public class MainActivity extends AppCompatActivity implements LoginCallBack {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    mPrefs.set("username", "");
-                    mPrefs.set("password", "");
-                    mPrefs.set("login", false);
                     addFragmentLogin();
                 } else {
                     Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
